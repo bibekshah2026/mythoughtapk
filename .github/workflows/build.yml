@@ -14,14 +14,21 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
+      - name: Find and fix gradlew
+        run: |
+          echo "=== Repo structure ==="
+          find . -type f | head -40
+          echo "=== Looking for gradlew ==="
+          find . -name "gradlew" 2>/dev/null
+          GRADLEW=$(find . -name "gradlew" | head -1)
+          DIR=$(dirname "$GRADLEW")
+          echo "Found gradlew in: $DIR"
+          cd "$DIR"
+          chmod +x gradlew
+          ./gradlew assembleDebug
 
-      - name: Build APK
-        run: ./gradlew assembleDebug
-
-      - name: Upload APK
+      - name: Find and Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: MyThoughts-APK
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: "**/app-debug.apk"
