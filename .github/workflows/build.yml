@@ -16,26 +16,27 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: List files
-        run: ls -la
-
       - name: Unzip project
         run: |
           ZIP=$(ls *.zip | head -1)
           echo "Found zip: $ZIP"
           unzip "$ZIP"
+          echo "--- Contents after unzip ---"
+          ls -la
+          echo "--- All folders ---"
+          find . -maxdepth 2 -name "gradlew"
 
-      - name: List after unzip
-        run: ls -la
-
-      - name: Make gradlew executable
-        run: chmod +x MyThoughtsApp/gradlew
-
-      - name: Build APK
-        run: cd MyThoughtsApp && ./gradlew assembleDebug
+      - name: Make gradlew executable and build
+        run: |
+          GRADLEW=$(find . -name "gradlew" | head -1)
+          echo "Found gradlew at: $GRADLEW"
+          DIR=$(dirname "$GRADLEW")
+          echo "Project dir: $DIR"
+          chmod +x "$GRADLEW"
+          cd "$DIR" && ./gradlew assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
-          path: MyThoughtsApp/app/build/outputs/apk/debug/app-debug.apk
+          path: "**/app/build/outputs/apk/debug/app-debug.apk"
