@@ -14,20 +14,15 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Find and fix gradlew
-        run: |
-          echo "=== Repo structure ==="
-          find . -type f | head -40
-          echo "=== Looking for gradlew ==="
-          find . -name "gradlew" 2>/dev/null
-          GRADLEW=$(find . -name "gradlew" | head -1)
-          DIR=$(dirname "$GRADLEW")
-          echo "Found gradlew in: $DIR"
-          cd "$DIR"
-          chmod +x gradlew
-          ./gradlew assembleDebug
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.2'
 
-      - name: Find and Upload APK
+      - name: Build APK
+        run: gradle assembleDebug
+
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: MyThoughts-APK
